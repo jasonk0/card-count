@@ -1,0 +1,32 @@
+{
+  "name": "card-count",
+  "private": true,
+  "type": "module",
+  "version": "1.0.0",
+  "description": "会员卡计数管理系统",
+  "main": "src/main.tsx",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "server": "cd server && npm run dev",
+    "start": "concurrently \"npm run dev\" \"npm run server\"",
+    "install-all": "npm install && cd server && npm install",
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@heroicons/react": "^2.2.0",
+    "@tailwindcss/vite": "^4.1.4",
+    "@vitejs/plugin-react": "^4.4.1",
+    "date-fns": "^4.1.0",
+    "react-router-dom": "^7.5.1",
+    "uuid": "^11.1.0",
+    "vite": "^6.3.2"
+  },
+  "devDependencies": {
+    "@types/react": "^19.1.2",
+    "@types/react-dom": "^19.1.2",
+    "@types/uuid": "^10.0.0",
+    "tailwindcss": "^4.1.4"
+  }
+}
