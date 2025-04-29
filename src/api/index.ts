@@ -1,6 +1,9 @@
 import { MemberCard, UsageRecord } from '../types';
 
-const API_BASE_URL = 'http://localhost:5000/api';
+// 自动检测API基础URL
+const API_BASE_URL = window.location.origin.includes('localhost') 
+  ? 'http://localhost:5000/api'  // 开发环境
+  : '/api';  // 生产环境（相对路径）
 
 // 通用请求函数
 const fetchAPI = async (endpoint: string, options: RequestInit = {}) => {

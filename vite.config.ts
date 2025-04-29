@@ -13,5 +13,10 @@ export default defineConfig({
         changeOrigin: true,
       }
     }
+  },
+  build: {
+    // 生产环境配置
+    outDir: 'dist',
+    assetsDir: 'assets',
   }
 })

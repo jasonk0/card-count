@@ -1,4 +1,4 @@
-FROM node:18-alpine as frontend-build
+FROM node:22-alpine as frontend-build
 
 WORKDIR /app
 
@@ -10,7 +10,7 @@ COPY . .
 RUN npm run build
 
 # 后端构建阶段
-FROM node:18-alpine as backend-build
+FROM node:22-alpine as backend-build
 
 WORKDIR /app/server
 
@@ -21,7 +21,7 @@ RUN npm install
 COPY server .
 
 # 生产阶段
-FROM node:18-alpine
+FROM node:22-alpine
 
 # 创建应用目录
 WORKDIR /app
