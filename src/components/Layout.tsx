@@ -1,5 +1,6 @@
 import { Outlet, Link, useLocation } from 'react-router-dom'
 import { HomeIcon, IdentificationIcon, ClockIcon, CalendarIcon } from '@heroicons/react/24/outline'
+import React, { ReactNode } from 'react'
 
 const navItems = [
   { name: '控制台', path: '/', icon: HomeIcon },
@@ -8,7 +9,12 @@ const navItems = [
   { name: '日历视图', path: '/calendar', icon: CalendarIcon },
 ]
 
-export default function Layout() {
+interface LayoutProps {
+  children?: ReactNode;
+  title?: string;
+}
+
+export default function Layout({ children, title }: LayoutProps) {
   const location = useLocation()
   
   return (
@@ -17,10 +23,9 @@ export default function Layout() {
         <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
           <div className="flex items-center mb-2 justify-center">
             <div className='overflow-hidden'>
-
             <img src="/logo.png" alt="会员卡管理系统" className="h-30 w-30 -mt-3 -mb-3"  />
             </div>
-           <h1 className="text-3xl font-bold tracking-tight text-gray-900">会员卡管理系统</h1>
+           <h1 className="text-3xl font-bold tracking-tight text-gray-900">{title || "会员卡管理系统"}</h1>
           </div>
         </div>
       </header>
@@ -59,7 +64,7 @@ export default function Layout() {
             </div>
           </nav>
           <main className="flex-1 bg-white rounded-lg shadow-md p-6 my-4">
-            <Outlet />
+            {children || <Outlet />}
           </main>
         </div>
       </div>

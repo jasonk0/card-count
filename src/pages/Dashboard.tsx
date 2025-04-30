@@ -2,7 +2,9 @@ import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { useCards } from '../hooks/useCards';
 import { useUsageRecords } from '../hooks/useUsageRecords';
+compareAsc
 import * as api from '../api';
+import { compareAsc } from 'date-fns';
 
 export default function Dashboard() {
   const { cards, loading: cardsLoading } = useCards();
@@ -316,7 +318,7 @@ export default function Dashboard() {
         <h3 className="text-lg font-medium mb-4">最近活动</h3>
         {records.length > 0 ? (
           <ul className="divide-y divide-gray-200">
-            {records.slice(0, 5).map((record) => {
+            {records.sort((a,b)=>compareAsc(b.date, a.date)).slice(0,5).map((record) => {
               const card = cards.find(c => c.id === record.cardId);
               return (
                 <li key={record.id} className="py-3">
