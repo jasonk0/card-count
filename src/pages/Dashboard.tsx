@@ -13,7 +13,7 @@ export default function Dashboard() {
   const [exportLoading, setExportLoading] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  
+
   const [stats, setStats] = useState({
     totalCards: 0,
     activeCards: 0,
@@ -41,40 +41,40 @@ export default function Dashboard() {
     const activeCards = cards.filter(card => card.isActive).length;
     const totalUsage = records.filter(record => record.isUsed).length;
     const personalTotalUsage = records.filter(record => record.isUsed && !record.isSold).length;
-    
+
     // 计算每张卡的统计数据
     const cardStats = cards.map(card => {
       // 获取该卡的所有记录
       const cardRecords = records.filter(record => record.cardId === card.id);
-      
+
       // 使用次数
       const usageCount = cardRecords.filter(record => record.isUsed).length;
       const personalUsageCount = cardRecords.filter(record => record.isUsed && !record.isSold).length;
-      
+
       // 卡的原始价格
       const originalPrice = card.price || 0;
-      
+
       // 卡的销售收入（所有售出记录的价格总和）
       const salesRevenue = cardRecords
         .filter(record => record.isSold && record.soldPrice)
         .reduce((sum, record) => sum + (record.soldPrice || 0), 0);
-      
+
       // 计算净成本 = 原始价格 - 销售收入
       const netCost = originalPrice - salesRevenue;
-      
+
       // 单次使用成本 = 净成本 / 使用次数
       const costPerUse = personalUsageCount > 0 ? netCost / personalUsageCount : 0;
-      
+
       // 预期单次价格
       const expectedPricePerUse = card.expectedPricePerUse || 0;
-      
+
       // 计算距离预期单次价格还差多少次使用
       let remainingUsesToExpected = 0;
       if (expectedPricePerUse > 0 && costPerUse > expectedPricePerUse) {
         // 差多少次使用 = 净成本 / 预期单次价格 - 当前使用次数
         remainingUsesToExpected = Math.ceil(netCost / expectedPricePerUse - personalUsageCount);
       }
-      
+
       // 计算超值金额：预期单次价格 * 个人使用次数 - 卡的价格
       // 只有当实际单次价格低于预期单次价格时才计算
       let extraValueAmount = 0;
@@ -117,7 +117,7 @@ export default function Dashboard() {
     try {
       setExportLoading(true);
       const data = await api.exportData();
-      
+
       // 创建JSON文件并下载
       const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
@@ -126,13 +126,13 @@ export default function Dashboard() {
       a.download = `会员卡数据导出_${new Date().toISOString().split('T')[0]}.json`;
       document.body.appendChild(a);
       a.click();
-      
+
       // 清理URL对象
       setTimeout(() => {
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
       }, 0);
-      
+
       setMessage({ type: 'success', text: '数据导出成功！' });
     } catch (error) {
       console.error('导出数据失败:', error);
@@ -143,28 +143,28 @@ export default function Dashboard() {
       setTimeout(() => setMessage(null), 5000);
     }
   };
-  
+
   // 触发文件选择对话框
   const triggerFileInput = () => {
     if (fileInputRef.current) {
       fileInputRef.current.click();
     }
   };
-  
+
   // 导入数据
   const handleImport = async (event: React.ChangeEvent<HTMLInputElement>) => {
     try {
       const file = event.target.files?.[0];
       if (!file) return;
-      
+
       setImportLoading(true);
       const result = await api.importData(file);
-      
-      setMessage({ 
-        type: 'success', 
-        text: `导入成功！导入了${result.cardsCount}张会员卡和${result.recordsCount}条使用记录。请刷新页面查看最新数据。` 
+
+      setMessage({
+        type: 'success',
+        text: `导入成功！导入了${result.cardsCount}张会员卡和${result.recordsCount}条使用记录。请刷新页面查看最新数据。`
       });
-      
+
       // 重新加载页面以显示导入的数据
       setTimeout(() => {
         window.location.reload();
@@ -292,15 +292,15 @@ export default function Dashboard() {
                       {cardStat.expectedPricePerUse > 0 ? `￥${cardStat.expectedPricePerUse.toFixed(2)}` : '未设置'}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {cardStat.expectedPricePerUse > 0 ? 
-                        (cardStat.remainingUsesToExpected > 0 ? 
-                          `还需${cardStat.remainingUsesToExpected}次` : 
-                          '已达预期') : 
+                      {cardStat.expectedPricePerUse > 0 ?
+                        (cardStat.remainingUsesToExpected > 0 ?
+                          `还需${cardStat.remainingUsesToExpected}次` :
+                          '已达预期') :
                         '未设置预期价格'}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {cardStat.extraValueAmount > 0 ? 
-                        <span className="text-green-600">￥{cardStat.extraValueAmount.toFixed(2)}</span> : 
+                      {cardStat.extraValueAmount > 0 ?
+                        <span className="text-green-600">￥{cardStat.extraValueAmount.toFixed(2)}</span> :
                         '暂无超值'}
                     </td>
                   </tr>
@@ -318,7 +318,7 @@ export default function Dashboard() {
         <h3 className="text-lg font-medium mb-4">最近活动</h3>
         {records.length > 0 ? (
           <ul className="divide-y divide-gray-200">
-            {records.sort((a,b)=>compareAsc(b.date, a.date)).slice(0,5).map((record) => {
+            {records.sort((a, b) => compareAsc(b.date, a.date)).slice(0, 5).map((record) => {
               const card = cards.find(c => c.id === record.cardId);
               return (
                 <li key={record.id} className="py-3">
@@ -328,7 +328,7 @@ export default function Dashboard() {
                         {card?.name || '未知会员卡'}
                       </p>
                       <p className="text-sm text-gray-500">
-                        {new Date(record.date).toLocaleDateString()} - 
+                        {new Date(record.date).toLocaleDateString()} -
                         {record.isUsed ? '使用' : (record.isSold ? '售出' : '未使用')}
                       </p>
                     </div>
