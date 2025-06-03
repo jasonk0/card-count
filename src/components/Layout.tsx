@@ -1,6 +1,7 @@
-import { Outlet, Link, useLocation } from 'react-router-dom'
-import { HomeIcon, IdentificationIcon, ClockIcon, CalendarIcon, BoltIcon } from '@heroicons/react/24/outline'
+import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom'
+import { HomeIcon, IdentificationIcon, ClockIcon, CalendarIcon, BoltIcon, ArrowRightOnRectangleIcon, KeyIcon } from '@heroicons/react/24/outline'
 import React, { ReactNode } from 'react'
+import { removeToken } from '../api'
 
 const navItems = [
   { name: '控制台', path: '/', icon: HomeIcon },
@@ -8,6 +9,7 @@ const navItems = [
   { name: '使用记录', path: '/history', icon: ClockIcon },
   { name: '日历视图', path: '/calendar', icon: CalendarIcon },
   { name: '快捷记录', path: '/quick-record', icon: BoltIcon },
+  { name: 'Token管理', path: '/token-manager', icon: KeyIcon },
 ]
 
 interface LayoutProps {
@@ -17,6 +19,14 @@ interface LayoutProps {
 
 export default function Layout({ children, title }: LayoutProps) {
   const location = useLocation()
+  const navigate = useNavigate()
+  
+  const handleLogout = () => {
+    if (confirm('确定要退出登录吗？')) {
+      removeToken()
+      navigate('/login', { replace: true })
+    }
+  }
   
   return (
     <div className="min-h-screen bg-gray-100">
@@ -57,6 +67,16 @@ export default function Layout({ children, title }: LayoutProps) {
                   </li>
                 )
               })}
+              
+              <li className="mt-4 pt-4 border-t border-gray-200">
+                <button
+                  onClick={handleLogout}
+                  className="flex items-center w-full px-4 py-3 rounded-lg text-gray-600 hover:bg-red-50 hover:text-red-600 transition-all duration-200"
+                >
+                  <ArrowRightOnRectangleIcon className="h-5 w-5 text-gray-500 mr-3" />
+                  <span>退出登录</span>
+                </button>
+              </li>
             </ul>
             <div className="p-4 mt-auto">
               <div className="text-xs text-gray-500 text-center">

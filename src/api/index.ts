@@ -5,23 +5,162 @@ const API_BASE_URL = window.location.origin.includes('localhost')
   ? 'http://localhost:5000/api'  // 开发环境
   : '/api';  // 生产环境（相对路径）
 
+// Token管理
+const TOKEN_KEY = 'auth_token';
+
+export const getToken = (): string | null => {
+  return localStorage.getItem(TOKEN_KEY);
+};
+
+export const setToken = (token: string): void => {
+  localStorage.setItem(TOKEN_KEY, token);
+};
+
+export const removeToken = (): void => {
+  localStorage.removeItem(TOKEN_KEY);
+};
+
 // 通用请求函数
 const fetchAPI = async (endpoint: string, options: RequestInit = {}) => {
   const url = `${API_BASE_URL}${endpoint}`;
+  const token = getToken();
+  
   const response = await fetch(url, {
     ...options,
     headers: {
       'Content-Type': 'application/json',
+      ...(token && { 'Authorization': `Bearer ${token}` }),
       ...options.headers,
     },
   });
 
   if (!response.ok) {
     const error = await response.json().catch(() => ({ message: '请求失败' }));
+    
+    // 如果是401错误，清除token并重定向到登录页
+    if (response.status === 401) {
+      removeToken();
+      window.location.href = '/login';
+    }
+    
     throw new Error(error.message || '请求失败');
   }
 
   return response.json();
+};
+
+// 认证相关API
+export const login = async (username: string, password: string, expiresIn?: string): Promise<{
+  message: string;
+  token: string;
+  expiresAt: string;
+  user: { id: string; username: string; role: string };
+}> => {
+  const response = await fetch(`${API_BASE_URL}/auth/login`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ username, password, expiresIn }),
+  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ message: '登录失败' }));
+    throw new Error(error.message || '登录失败');
+  }
+
+  return response.json();
+};
+
+export const verifyToken = async (): Promise<{
+  message: string;
+  user: { id: string; username: string; role: string };
+}> => {
+  return fetchAPI('/auth/verify');
+};
+
+export const changePassword = async (currentPassword: string, newPassword: string): Promise<{ message: string }> => {
+  return fetchAPI('/auth/change-password', {
+    method: 'POST',
+    body: JSON.stringify({ currentPassword, newPassword }),
+  });
+};
+
+// Token管理相关API
+export const createToken = async (expiresIn?: string, description?: string): Promise<{
+  message: string;
+  token: string;
+  expiresAt: string;
+  description: string;
+  createdAt: string;
+}> => {
+  return fetchAPI('/auth/create-token', {
+    method: 'POST',
+    body: JSON.stringify({ expiresIn, description }),
+  });
+};
+
+export const getTokenInfo = async (): Promise<{
+  user: { id: string; username: string; role: string };
+  issuedAt: string;
+  expiresAt: string;
+  timeRemaining: number;
+}> => {
+  return fetchAPI('/auth/token-info');
+};
+
+export const getAllTokens = async (): Promise<Array<{
+  id: string;
+  token: string;
+  userId: string;
+  username: string;
+  description: string;
+  createdAt: string;
+  expiresAt: string;
+  isActive: boolean;
+  source: string;
+  isExpired: boolean;
+  timeRemaining: number;
+  isCurrentToken: boolean;
+  revokedAt?: string;
+  revokedBy?: string;
+}>> => {
+  return fetchAPI('/auth/tokens');
+};
+
+export const revokeToken = async (tokenId: string): Promise<{
+  message: string;
+  revokedToken: {
+    id: string;
+    description: string;
+    createdAt: string;
+  };
+}> => {
+  return fetchAPI(`/auth/tokens/${tokenId}`, {
+    method: 'DELETE',
+  });
+};
+
+export const cleanupExpiredTokens = async (): Promise<{
+  message: string;
+  cleanedCount: number;
+}> => {
+  return fetchAPI('/auth/tokens/cleanup', {
+    method: 'DELETE',
+  });
+};
+
+export const deleteToken = async (tokenId: string): Promise<{
+  message: string;
+  deletedToken: {
+    id: string;
+    description: string;
+    createdAt: string;
+  };
+}> => {
+  return fetchAPI(`/auth/tokens/${tokenId}/permanent`, {
+    method: 'DELETE',
+  });
 };
 
 // 会员卡相关API

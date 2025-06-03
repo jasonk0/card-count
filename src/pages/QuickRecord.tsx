@@ -126,13 +126,25 @@ export default function QuickRecord() {
           <div>
             <h4 className="font-medium">iOS快捷指令使用示例</h4>
             <ol className="list-decimal list-inside space-y-1 text-gray-600">
+              <li>在会员卡管理系统登录，获取token</li>
               <li>创建新的快捷指令</li>
               <li>添加"获取网页内容"操作</li>
               <li>设置URL为：<code>http://你的服务器地址/api/records/quick</code></li>
               <li>设置方法为POST</li>
+              <li>添加Headers：<code>Authorization: Bearer 你的token</code></li>
               <li>添加请求体：<code>{JSON.stringify({ keyword: "关键字" })}</code></li>
               <li>可以通过Siri语音触发</li>
             </ol>
+            
+            <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-md">
+              <h5 className="font-medium text-yellow-800 mb-2">⚠️ 重要说明</h5>
+              <ul className="text-sm text-yellow-700 space-y-1">
+                <li>• 所有API接口现在都需要token验证</li>
+                <li>• 请先登录系统获取token</li>
+                <li>• Token有效期为24小时</li>
+                <li>• 在iOS快捷指令中使用时，需要将token添加到Authorization头中</li>
+              </ul>
+            </div>
           </div>
         </div>
       </div>
