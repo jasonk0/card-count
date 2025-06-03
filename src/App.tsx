@@ -4,6 +4,7 @@ import Cards from './pages/Cards'
 import UsageHistory from './pages/UsageHistory'
 import Layout from './components/Layout'
 import Calendar from './pages/Calendar'
+import QuickRecord from './pages/QuickRecord'
 import './index.css'
 import './App.css'
 
@@ -17,6 +18,7 @@ function App() {
           <Route path="cards" element={<Cards />} />
           <Route path="history" element={<UsageHistory />} />
           <Route path="calendar" element={<Calendar />} />
+          <Route path="quick-record" element={<QuickRecord />} />
         </Route>
       </Routes>
     </Router>

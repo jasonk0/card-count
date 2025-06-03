@@ -131,4 +131,17 @@ export const importData = async (file: File): Promise<{ message: string, cardsCo
   }
 
   return response.json();
+};
+
+// 快捷记录相关API
+export const createQuickRecord = async (keyword: string): Promise<{
+  message: string;
+  record: UsageRecord;
+  card: MemberCard;
+  keyword: string;
+}> => {
+  return fetchAPI('/records/quick', {
+    method: 'POST',
+    body: JSON.stringify({ keyword }),
+  });
 }; 

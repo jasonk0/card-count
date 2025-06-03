@@ -1,5 +1,5 @@
 import { Outlet, Link, useLocation } from 'react-router-dom'
-import { HomeIcon, IdentificationIcon, ClockIcon, CalendarIcon } from '@heroicons/react/24/outline'
+import { HomeIcon, IdentificationIcon, ClockIcon, CalendarIcon, BoltIcon } from '@heroicons/react/24/outline'
 import React, { ReactNode } from 'react'
 
 const navItems = [
@@ -7,6 +7,7 @@ const navItems = [
   { name: '会员卡', path: '/cards', icon: IdentificationIcon },
   { name: '使用记录', path: '/history', icon: ClockIcon },
   { name: '日历视图', path: '/calendar', icon: CalendarIcon },
+  { name: '快捷记录', path: '/quick-record', icon: BoltIcon },
 ]
 
 interface LayoutProps {

@@ -275,6 +275,88 @@ app.delete('/api/records', (req, res) => {
   res.json({ message: '使用记录已批量删除' });
 });
 
+// 快捷记录 - 通过关键字模糊匹配会员卡创建使用记录
+app.post('/api/records/quick', (req, res) => {
+  const { keyword } = req.body;
+  
+  if (!keyword || keyword.trim() === '') {
+    return res.status(400).json({ message: '关键字不能为空' });
+  }
+  
+  const cards = readData(cardsFile);
+  const records = readData(recordsFile);
+  
+  // 模糊匹配会员卡名称（忽略大小写）
+  const matchedCards = cards.filter(card => 
+    card.name.toLowerCase().includes(keyword.toLowerCase().trim())
+  );
+  
+  if (matchedCards.length === 0) {
+    return res.status(404).json({ 
+      message: '未找到匹配的会员卡',
+      keyword: keyword 
+    });
+  }
+  
+  if (matchedCards.length > 1) {
+    return res.status(400).json({ 
+      message: '匹配到多张会员卡，请使用更精确的关键字',
+      keyword: keyword,
+      matchedCards: matchedCards.map(card => ({
+        id: card.id,
+        name: card.name,
+        type: card.type
+      }))
+    });
+  }
+  
+  const targetCard = matchedCards[0];
+  
+  // 检查卡片是否有效（剩余天数大于0）
+  if (targetCard.remainingDays <= 0) {
+    return res.status(400).json({ 
+      message: '该会员卡已无剩余次数',
+      card: {
+        id: targetCard.id,
+        name: targetCard.name,
+        remainingDays: targetCard.remainingDays
+      }
+    });
+  }
+  
+  // 创建使用记录
+  const newRecord = {
+    id: uuidv4(),
+    cardId: targetCard.id,
+    date: new Date().toISOString().split('T')[0], // 当前日期 YYYY-MM-DD
+    isUsed: true,
+    isSold: false,
+    soldPrice: null,
+    notes: `快捷记录 - ${keyword}`,
+    createdAt: new Date().toISOString()
+  };
+  
+  records.push(newRecord);
+  writeData(recordsFile, records);
+  
+  // 减少会员卡剩余天数
+  const updatedCard = {
+    ...targetCard,
+    remainingDays: targetCard.remainingDays - 1
+  };
+  
+  const cardIndex = cards.findIndex(card => card.id === targetCard.id);
+  cards[cardIndex] = updatedCard;
+  writeData(cardsFile, cards);
+  
+  res.status(201).json({
+    message: '快捷记录创建成功',
+    record: newRecord,
+    card: updatedCard,
+    keyword: keyword
+  });
+});
+
 // 导出数据
 app.get('/api/export', (req, res) => {
   const cards = readData(cardsFile);
